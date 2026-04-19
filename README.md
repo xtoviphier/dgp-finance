@@ -80,3 +80,6 @@ Built as part of the **8-Day AI Application Challenge** by Decoding Data Science
 
 ## 🔗 Author
 **Christopher William Wambua**
+
+## 📸 Prototype
+![App Screenshot](image.png)

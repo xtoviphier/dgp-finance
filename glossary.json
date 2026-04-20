@@ -1,0 +1,57 @@
+{
+  "assets": {
+    "en": "Resources owned by a business with economic value (e.g., cash, inventory, equipment).",
+    "ar": "الموارد المملوكة للشركة ذات القيمة الاقتصادية (مثل النقد، المخزون، المعدات).",
+    "fr": "Ressources possédées par une entreprise ayant une valeur économique (ex : trésorerie, stocks, équipements).",
+    "es": "Recursos propiedad de una empresa con valor económico (ej. efectivo, inventario, equipos).",
+    "pt": "Recursos possuídos por uma empresa com valor econômico (ex: caixa, estoque, equipamentos).",
+    "ru": "Ресурсы, принадлежащие бизнесу и имеющие экономическую ценность (например, денежные средства, запасы, оборудование).",
+    "de": "Ressourcen, die einem Unternehmen gehören und einen wirtschaftlichen Wert haben (z. B. Bargeld, Lagerbestand, Ausrüstung).",
+    "sw": "Rasilimali zinazomilikiwa na biashara zenye thamani ya kiuchumi (k.m. pesa taslimu, hisa, vifaa).",
+    "zh": "企业拥有的具有经济价值的资源（例如现金、库存、设备）。"
+  },
+  "liabilities": {
+    "en": "Obligations the business owes to outsiders (e.g., loans, accounts payable).",
+    "ar": "الالتزامات التي تدين بها الشركة للأطراف الخارجية (مثل القروض، الذمم الدائنة).",
+    "fr": "Obligations dues par l'entreprise à des tiers (ex : prêts, comptes fournisseurs).",
+    "es": "Obligaciones que la empresa debe a terceros (ej. préstamos, cuentas por pagar).",
+    "pt": "Obrigações que a empresa deve a terceiros (ex: empréstimos, contas a pagar).",
+    "ru": "Обязательства бизнеса перед внешними сторонами (например, кредиты, кредиторская задолженность).",
+    "de": "Verpflichtungen des Unternehmens gegenüber Dritten (z. B. Kredite, Verbindlichkeiten).",
+    "sw": "Majukumu ambayo biashara inadai kwa wengine (k.m. mikopo, akaunti za kulipa).",
+    "zh": "企业对外部方的债务义务（例如贷款、应付账款）。"
+  },
+  "equity": {
+    "en": "Owner's residual interest in the business after liabilities are deducted from assets.",
+    "ar": "حصة المالك المتبقية في الشركة بعد خصم الالتزامات من الأصول.",
+    "fr": "Intérêt résiduel du propriétaire dans l'entreprise après déduction des passifs des actifs.",
+    "es": "Interés residual del propietario en la empresa después de deducir los pasivos de los activos.",
+    "pt": "Interesse residual do proprietário na empresa após deduzir os passivos dos ativos.",
+    "ru": "Остаточная доля владельца в бизнесе после вычета обязательств из активов.",
+    "de": "Restlicher Anteil des Eigentümers am Unternehmen nach Abzug der Verbindlichkeiten vom Vermögen.",
+    "sw": "Maslahi ya mwenye biashara katika biashara baada ya kutoa majukumu kutoka kwa rasilimali.",
+    "zh": "所有者在企业中的剩余权益，即资产减去负债后的余额。"
+  },
+  "revenue": {
+    "en": "Income generated from normal business operations (e.g., sales of goods/services).",
+    "ar": "الدخل الناتج عن العمليات التجارية العادية (مثل مبيعات السلع/الخدمات).",
+    "fr": "Revenu généré par les activités commerciales normales (ex : ventes de biens/services).",
+    "es": "Ingresos generados por operaciones comerciales normales (ej. ventas de bienes/servicios).",
+    "pt": "Receita gerada pelas operações comerciais normais (ex: vendas de bens/serviços).",
+    "ru": "Доход, полученный от обычной коммерческой деятельности (например, продажа товаров/услуг).",
+    "de": "Einnahmen aus normalen Geschäftstätigkeiten (z. B. Verkauf von Waren/Dienstleistungen).",
+    "sw": "Mapato yanayotokana na shughuli za kawaida za biashara (k.m. mauzo ya bidhaa/huduma).",
+    "zh": "企业正常经营活动产生的收入（例如商品/服务销售）。"
+  },
+  "expenses": {
+    "en": "Costs incurred in generating revenue (e.g., salaries, rent, utilities).",
+    "ar": "التكاليف المتكبدة لتوليد الإيرادات (مثل الرواتب، الإيجار، المرافق).",
+    "fr": "Coûts engagés pour générer des revenus (ex : salaires, loyer, services publics).",
+    "es": "Costos incurridos para generar ingresos (ej. salarios, alquiler, servicios públicos).",
+    "pt": "Custos incorridos para gerar receita (ex: salários, aluguel, utilities).",
+    "ru": "Затраты, понесённые для получения дохода (например, зарплата, аренда, коммунальные услуги).",
+    "de": "Kosten, die zur Erzielung von Einnahmen entstehen (z. B. Gehälter, Miete, Nebenkosten).",
+    "sw": "Gharama zinazotokana na kuzalisha mapato (k.m. mishahara, kodi, huduma).",
+    "zh": "为产生收入而发生的成本（例如工资、租金、水电费）。"
+  }
+}

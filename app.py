@@ -130,48 +130,53 @@ with tab1:
                 st.success(get_ai_translation("✅ Statement of Activities data saved!", current_lang))
                 st.balloons()
 
-        # DISPLAY SECTION
+        # DISPLAY SECTION - Non-Profit
         cfg = st.session_state.get("income_statement")
         if cfg and cfg.get("type") == "nonprofit_activities":
-            st.write(f"**{cfg['period']}**")
-            st.markdown(get_ai_translation("### Income / Inflows", current_lang))
+            currency = 'AED'
+            period = cfg.get('period', 'Year Ended 31 December 2024')
+            
             total_income = cfg['donations'] + cfg['grants'] + cfg['membership_fees'] + cfg['fundraising_income']
-            
-            income_data = {
-                'Item': [get_ai_translation("Donations", current_lang), get_ai_translation("Grants", current_lang), 
-                        get_ai_translation("Membership fees", current_lang), get_ai_translation("Fundraising income", current_lang),
-                        get_ai_translation("Total Income / Inflows", current_lang)],
-                'Amount (AED)': [cfg['donations'], cfg['grants'], cfg['membership_fees'], cfg['fundraising_income'], total_income]
-            }
-            st.dataframe(pd.DataFrame(income_data), use_container_width=True)
-            
-            st.markdown(get_ai_translation("### Expenses", current_lang))
             total_expenses = cfg['program_expenses'] + cfg['admin_expenses'] + cfg['fundraising_costs']
-            
-            expenses_data = {
-                'Item': [get_ai_translation("Program expenses (core mission activities)", current_lang), 
-                        get_ai_translation("Administrative expenses", current_lang),
-                        get_ai_translation("Fundraising costs", current_lang),
-                        get_ai_translation("Total Expenses", current_lang)],
-                'Amount (AED)': [cfg['program_expenses'], cfg['admin_expenses'], cfg['fundraising_costs'], -total_expenses]
-            }
-            st.dataframe(pd.DataFrame(expenses_data), use_container_width=True)
-            
-            # Calculate Surplus/Deficit
             surplus_deficit = total_income - total_expenses
-            result_label = get_ai_translation("→ Surplus", current_lang) if surplus_deficit >= 0 else get_ai_translation("→ Deficit", current_lang)
             
-            st.markdown(get_ai_translation("### Final Result", current_lang))
-            st.metric(label=result_label, value=f"{surplus_deficit:,.2f} AED", 
-                     delta=None, delta_color="normal" if surplus_deficit >= 0 else "inverse")
-        elif not cfg:
-            st.info(get_ai_translation("👆 Enter Statement of Activities data above to generate report", current_lang))
+            rows = []
+            rows.append(['DGP Finance Client', '', ''])
+            rows.append([get_ai_translation("Statement of Activities", current_lang), '', ''])
+            rows.append([period, '', ''])
+            rows.append(['', '', ''])
+            rows.append(['', currency, currency])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Income / Inflows", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Donations", current_lang), '', f"{cfg['donations']:,.2f}"])
+            rows.append([get_ai_translation("Grants", current_lang), '', f"{cfg['grants']:,.2f}"])
+            rows.append([get_ai_translation("Membership fees", current_lang), '', f"{cfg['membership_fees']:,.2f}"])
+            rows.append([get_ai_translation("Fundraising income", current_lang), '', f"{cfg['fundraising_income']:,.2f}"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Total Income", current_lang), '', f"{total_income:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Expenses", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Program expenses (core mission activities)", current_lang), '', f"({cfg['program_expenses']:,.2f})"])
+            rows.append([get_ai_translation("Administrative expenses", current_lang), '', f"({cfg['admin_expenses']:,.2f})"])
+            rows.append([get_ai_translation("Fundraising costs", current_lang), '', f"({cfg['fundraising_costs']:,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Total Expenses", current_lang), '', f"({total_expenses:,.2f})"])
+            rows.append(['', '', ''])
+            
+            result_label = get_ai_translation("Net Surplus", current_lang) if surplus_deficit >= 0 else get_ai_translation("Net Deficit", current_lang)
+            rows.append([result_label, '', f"{surplus_deficit:,.2f}" if surplus_deficit >= 0 else f"({abs(surplus_deficit):,.2f})"])
+            
+            df = pd.DataFrame(rows, columns=['', '\u200b' + currency, '\u200c' + currency])
+            st.dataframe(df, use_container_width=True, hide_index=True)
     
-    else:
-        # EXISTING INCOME STATEMENT CODE (unchanged)
+    else:  # Regular Income Statement - ENTIRE BLOCK INSIDE ELSE
         st.subheader(get_ai_translation("Income Statement / Profit & Loss (P&L)", current_lang))
         
-        # INPUT SECTION - Only Income Statement fields
+        # INPUT SECTION
         with st.expander(get_ai_translation("📝 Enter Income Statement Data", current_lang), expanded=True):
             st.subheader(get_ai_translation("Revenue / Trading", current_lang))
             col1, col2 = st.columns(2)
@@ -229,35 +234,17 @@ with tab1:
                 }
                 st.success(get_ai_translation("✅ Income Statement data saved!", current_lang))
                 st.balloons()
-
-        # DISPLAY SECTION
+        
+        # DISPLAY SECTION - Regular Income Statement (INSIDE ELSE BLOCK)
         cfg = st.session_state.get("income_statement")
         if cfg and cfg.get("type") == "income_statement":
-            st.write(f"**{cfg['period']}**")
-            st.markdown(get_ai_translation("### Revenue / Trading Section", current_lang))
+            currency = cfg.get('currency', 'AED')
+            period = cfg.get('period', 'Year Ended 31 March 2025')
+            
             net_sales = cfg['sales'] - cfg['sales_returns']
             cogs = cfg['opening_stock'] + cfg['purchases'] + cfg['carriage_in'] - cfg['closing_stock']
             gross_profit = net_sales - cogs
-            
-            trading_data = {
-                'Item': [get_ai_translation("Sales Revenue", current_lang), get_ai_translation("Less: Returns", current_lang), get_ai_translation("Net Sales", current_lang), 
-                        get_ai_translation("Opening Stock", current_lang), get_ai_translation("Purchases", current_lang), get_ai_translation("Carriage Inwards", current_lang), 
-                        get_ai_translation("Less: Closing Stock", current_lang), get_ai_translation("Cost of Sales", current_lang), get_ai_translation("→ Gross Profit", current_lang)],
-                'Amount (AED)': [cfg['sales'], -cfg['sales_returns'], net_sales,
-                               cfg['opening_stock'], cfg['purchases'], cfg['carriage_in'],
-                               -cfg['closing_stock'], -cogs, gross_profit]
-            }
-            st.dataframe(pd.DataFrame(trading_data), use_container_width=True)
-            
-            st.markdown(get_ai_translation("### Other Income", current_lang))
             other_income_total = cfg['rent_income'] + cfg['interest_received'] + cfg['misc_income']
-            other_income_data = {
-                'Item': [get_ai_translation("Rent income", current_lang), get_ai_translation("Interest received", current_lang), get_ai_translation("Miscellaneous income", current_lang), get_ai_translation("Total Other Income", current_lang)],
-                'Amount (AED)': [cfg['rent_income'], cfg['interest_received'], cfg['misc_income'], other_income_total]
-            }
-            st.dataframe(pd.DataFrame(other_income_data), use_container_width=True)
-            
-            st.markdown(get_ai_translation("### Expenses", current_lang))
             rent_exp = cfg['rent_paid'] + cfg['rent_accrued'] - cfg['rent_prepaid']
             insurance_exp = cfg['insurance_paid'] - cfg['insurance_prepaid']
             
@@ -276,12 +263,62 @@ with tab1:
             total_expenses = sum(x[1] for x in expenses_list)
             net_profit = gross_profit + other_income_total - total_expenses
             
-            expenses_data = {'Item': [x[0] for x in expenses_list] + [get_ai_translation("Total Expenses", current_lang), get_ai_translation("→ Net Profit / Net Loss", current_lang)],
-                            'Amount (AED)': [x[1] for x in expenses_list] + [-total_expenses, net_profit]}
-            st.dataframe(pd.DataFrame(expenses_data), use_container_width=True)
-        elif not cfg:
-            st.info(get_ai_translation("👆 Enter Income Statement data above to generate report", current_lang))
-
+            rows = []
+            rows.append(['DGP Finance Client', '', ''])
+            rows.append([get_ai_translation("Income Statement / Profit & Loss (P&L)", current_lang), '', ''])
+            rows.append([period, '', ''])
+            rows.append(['', '', ''])
+            rows.append(['', currency, currency])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Revenue", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Sales Revenue", current_lang), '', f"{cfg['sales']:,.2f}"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Less: Returns", current_lang), '', f"({cfg['sales_returns']:,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Net Sales", current_lang), '', f"{net_sales:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Cost of Sales", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Opening Stock", current_lang), f"{cfg['opening_stock']:,.2f}", ''])
+            rows.append([get_ai_translation("Purchases", current_lang), f"{cfg['purchases']:,.2f}", ''])
+            rows.append([get_ai_translation("Carriage Inwards", current_lang), f"{cfg['carriage_in']:,.2f}", ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Less: Closing Stock", current_lang), f"({cfg['closing_stock']:,.2f})", ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Cost of Sales", current_lang), '', f"({cogs:,.2f})"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Gross Profit", current_lang), '', f"{gross_profit:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Other Income", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Rent income", current_lang), f"{cfg['rent_income']:,.2f}", ''])
+            rows.append([get_ai_translation("Interest received", current_lang), f"{cfg['interest_received']:,.2f}", ''])
+            rows.append([get_ai_translation("Miscellaneous income", current_lang), f"{cfg['misc_income']:,.2f}", ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Total Other Income", current_lang), '', f"{other_income_total:,.2f}"])
+            rows.append(['', '', ''])
+            
+            pbe = gross_profit + other_income_total
+            rows.append([get_ai_translation("Profit Before Expenses", current_lang), '', f"{pbe:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Expenses", current_lang), '', ''])
+            rows.append(['', '', ''])
+            for item_name, item_value in expenses_list:
+                rows.append([item_name, f"{item_value:,.2f}", ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Total Expenses", current_lang), '', f"({total_expenses:,.2f})"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Net Profit", current_lang), '', f"{net_profit:,.2f}"])
+            
+            df = pd.DataFrame(rows, columns=['', '\u200b' + currency, '\u200c' + currency])
+            st.dataframe(df, use_container_width=True, hide_index=True)
 # ============================================================================
 # TAB 2: STATEMENT OF FINANCIAL POSITION (BALANCE SHEET) - WITH AUTO-IMPORT
 # ============================================================================
@@ -291,23 +328,30 @@ with tab2:
     # AUTO-IMPORT LOGIC: Check for Income Statement data to pre-fill fields
     auto_import_data = {}
     is_data = st.session_state.get("income_statement")
-    if is_data and is_data.get("type") == "income_statement":
-        # Calculate Net Profit for Equity
-        net_sales = is_data['sales'] - is_data['sales_returns']
-        cogs = is_data['opening_stock'] + is_data['purchases'] + is_data['carriage_in'] - is_data['closing_stock']
-        gross_profit = net_sales - cogs
-        other_income_total = is_data['rent_income'] + is_data['interest_received'] + is_data['misc_income']
-        rent_exp = is_data['rent_paid'] + is_data['rent_accrued'] - is_data['rent_prepaid']
-        insurance_exp = is_data['insurance_paid'] - is_data['insurance_prepaid']
-        expenses_list = [is_data['wages_salaries'], rent_exp + insurance_exp, is_data['utilities'],
-                        is_data['printing'] + is_data['postage'], is_data['discount_allowed'],
-                        is_data['bad_debts'] + is_data['prov_doubtful_debts'], is_data['repairs'],
-                        is_data['depreciation'], is_data['interest_expense'], is_data['general_expenses']]
-        total_expenses = sum(expenses_list)
-        auto_import_data['net_profit'] = gross_profit + other_income_total - total_expenses
-        # Suggest Closing Stock as Inventory value
-        auto_import_data['inventory'] = is_data['closing_stock']
-    
+
+    if is_data and isinstance(is_data, dict) and is_data.get("type") == "income_statement":
+        try:
+            # Calculate Net Profit for Equity
+            net_sales = is_data['sales'] - is_data['sales_returns']
+            cogs = is_data['opening_stock'] + is_data['purchases'] + is_data['carriage_in'] - is_data['closing_stock']
+            gross_profit = net_sales - cogs
+            other_income_total = is_data['rent_income'] + is_data['interest_received'] + is_data['misc_income']
+            rent_exp = is_data['rent_paid'] + is_data['rent_accrued'] - is_data['rent_prepaid']
+            insurance_exp = is_data['insurance_paid'] - is_data['insurance_prepaid']
+            expenses_list = [is_data['wages_salaries'], rent_exp + insurance_exp, is_data['utilities'],
+                            is_data['printing'] + is_data['postage'], is_data['discount_allowed'],
+                            is_data['bad_debts'] + is_data['prov_doubtful_debts'], is_data['repairs'],
+                            is_data['depreciation'], is_data['interest_expense'], is_data['general_expenses']]
+            total_expenses = sum(expenses_list)
+            auto_import_data['net_profit'] = gross_profit + other_income_total - total_expenses
+            auto_import_data['inventory'] = is_data['closing_stock']
+        
+            # ✅ Always update from Income Statement if available
+            if auto_import_data.get('inventory'):
+                st.session_state.bs_inventory = auto_import_data['inventory']
+        except KeyError as e:
+            st.error(f"Auto-import error: Missing key {e} in Income Statement data")
+
     # INPUT SECTION - Balance Sheet fields with auto-import defaults
     with st.expander(get_ai_translation("📝 Enter Balance Sheet Data", current_lang), expanded=True):
         st.subheader(get_ai_translation("Non-Current Assets", current_lang))
@@ -323,8 +367,7 @@ with tab2:
         col3, col4 = st.columns(2)
         with col3:
             # Auto-fill Inventory from Income Statement Closing Stock
-            inventory_default = auto_import_data.get('inventory', 0.0)
-            inventory = st.number_input(get_ai_translation("Inventory (Closing Stock)", current_lang), min_value=0.0, step=1000.0, value=inventory_default, key="bs_inventory")
+            inventory = st.number_input(get_ai_translation("Inventory (Closing Stock)", current_lang), min_value=0.0, step=1000.0, key="bs_inventory")
             debtors = st.number_input(get_ai_translation("Debtors (Accounts Receivable)", current_lang), min_value=0.0, step=1000.0, key="bs_debtors")
             bills_receivable = st.number_input(get_ai_translation("Bills Receivable", current_lang), min_value=0.0, step=1000.0, key="bs_bills_rec")
         with col4:
@@ -374,68 +417,95 @@ with tab2:
     # DISPLAY SECTION
     cfg = st.session_state.get("balance_sheet")
     if cfg:
-        st.markdown(get_ai_translation("### Non-Current Assets", current_lang))
+        currency = cfg.get('currency', 'AED') if 'currency' in cfg else 'AED'
+        period = 'As of 31 March 2025'
+        
         nca_net = cfg['land_building'] + cfg['machinery'] + cfg['furniture'] - cfg['accumulated_depreciation']
-        nca_data = {
-            'Item': [get_ai_translation("Land & Buildings", current_lang), get_ai_translation("Machinery", current_lang), get_ai_translation("Furniture", current_lang), get_ai_translation("Less: Accumulated Depreciation", current_lang), get_ai_translation("Total Non-Current Assets", current_lang)],
-            'Amount (AED)': [cfg['land_building'], cfg['machinery'], cfg['furniture'], -cfg['accumulated_depreciation'], nca_net]
-        }
-        st.dataframe(pd.DataFrame(nca_data), use_container_width=True)
-        
-        st.markdown(get_ai_translation("### Current Assets", current_lang))
         current_assets = cfg['inventory'] + cfg['debtors'] + cfg['bills_receivable'] + cfg['cash_hand'] + cfg['cash_bank']
-        ca_data = {
-            'Item': [get_ai_translation("Inventory (Closing Stock)", current_lang), get_ai_translation("Debtors (Accounts Receivable)", current_lang), get_ai_translation("Bills Receivable", current_lang), 
-                    get_ai_translation("Cash in Hand", current_lang), get_ai_translation("Cash at Bank", current_lang), get_ai_translation("Total Current Assets", current_lang)],
-            'Amount (AED)': [cfg['inventory'], cfg['debtors'], cfg['bills_receivable'], 
-                           cfg['cash_hand'], cfg['cash_bank'], current_assets]
-        }
-        st.dataframe(pd.DataFrame(ca_data), use_container_width=True)
-        
-        st.markdown(get_ai_translation("### Current Liabilities", current_lang))
         current_liabilities = cfg['creditors'] + cfg['bills_payable'] + cfg['bank_overdraft'] + cfg['accrued_expenses']
-        cl_data = {
-            'Item': [get_ai_translation("Creditors (Accounts Payable)", current_lang), get_ai_translation("Bills Payable", current_lang), get_ai_translation("Bank Overdraft", current_lang), 
-                    get_ai_translation("Accrued Expenses", current_lang), get_ai_translation("Total Current Liabilities", current_lang)],
-            'Amount (AED)': [cfg['creditors'], cfg['bills_payable'], cfg['bank_overdraft'], 
-                           cfg['accrued_expenses'], current_liabilities]
-        }
-        st.dataframe(pd.DataFrame(cl_data), use_container_width=True)
-        
-        st.markdown(get_ai_translation("### Non-Current Liabilities", current_lang))
         ncl_total = cfg['bank_loan'] + cfg['loan_notes']
-        ncl_data = {
-            'Item': [get_ai_translation("Bank Loans", current_lang), get_ai_translation("Loan Notes", current_lang), get_ai_translation("Total Non-Current Liabilities", current_lang)],
-            'Amount (AED)': [cfg['bank_loan'], cfg['loan_notes'], ncl_total]
-        }
-        st.dataframe(pd.DataFrame(ncl_data), use_container_width=True)
-        
-        st.markdown(get_ai_translation("### Equity (Capital)", current_lang))
-        # Auto-import Net Profit for Equity calculation
         net_profit_for_equity = auto_import_data.get('net_profit', 0)
         closing_capital = cfg['opening_capital'] + cfg['additional_capital'] + net_profit_for_equity - cfg['drawings']
-        
-        capital_data = {
-            'Item': [get_ai_translation("Opening Capital", current_lang), get_ai_translation("Additional Capital", current_lang), get_ai_translation("Net Profit", current_lang), get_ai_translation("– Drawings", current_lang), get_ai_translation("→ Closing Capital", current_lang)],
-            'Amount (AED)': [cfg['opening_capital'], cfg['additional_capital'], net_profit_for_equity, -cfg['drawings'], closing_capital]
-        }
-        st.dataframe(pd.DataFrame(capital_data), use_container_width=True)
-        
         total_assets = nca_net + current_assets
         total_liabilities_equity = closing_capital + current_liabilities + ncl_total
-        summary_data = {
-            'Item': [get_ai_translation("Total Assets", current_lang), get_ai_translation("Total Capital & Liabilities", current_lang)],
-            'Amount (AED)': [total_assets, total_liabilities_equity]
-        }
-        st.dataframe(pd.DataFrame(summary_data), use_container_width=True)
         
-        # Balance check
+        rows = []
+        rows.append(['DGP Finance Client', '', ''])
+        rows.append([get_ai_translation("Statement of Financial Position", current_lang), '', ''])
+        rows.append([period, '', ''])
+        rows.append(['', '', ''])
+        rows.append(['', currency, currency])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("ASSETS", current_lang), '', ''])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("Non-Current Assets", current_lang), '', ''])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Land & Buildings", current_lang), '', f"{cfg['land_building']:,.2f}"])
+        rows.append([get_ai_translation("Machinery", current_lang), '', f"{cfg['machinery']:,.2f}"])
+        rows.append([get_ai_translation("Furniture", current_lang), '', f"{cfg['furniture']:,.2f}"])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Less: Accumulated Depreciation", current_lang), '', f"({cfg['accumulated_depreciation']:,.2f})"])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Total Non-Current Assets", current_lang), '', f"{nca_net:,.2f}"])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("Current Assets", current_lang), '', ''])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Inventory (Closing Stock)", current_lang), '', f"{cfg['inventory']:,.2f}"])
+        rows.append([get_ai_translation("Debtors (Accounts Receivable)", current_lang), '', f"{cfg['debtors']:,.2f}"])
+        rows.append([get_ai_translation("Bills Receivable", current_lang), '', f"{cfg['bills_receivable']:,.2f}"])
+        rows.append([get_ai_translation("Cash in Hand", current_lang), '', f"{cfg['cash_hand']:,.2f}"])
+        rows.append([get_ai_translation("Cash at Bank", current_lang), '', f"{cfg['cash_bank']:,.2f}"])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Total Current Assets", current_lang), '', f"{current_assets:,.2f}"])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("TOTAL ASSETS", current_lang), '', f"{total_assets:,.2f}"])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("EQUITY & LIABILITIES", current_lang), '', ''])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("Capital", current_lang), '', ''])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Opening Capital", current_lang), '', f"{cfg['opening_capital']:,.2f}"])
+        rows.append([get_ai_translation("Additional Capital", current_lang), '', f"{cfg['additional_capital']:,.2f}"])
+        rows.append([get_ai_translation("Net Profit", current_lang), '', f"{net_profit_for_equity:,.2f}"])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Less: Drawings", current_lang), '', f"({cfg['drawings']:,.2f})"])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Closing Capital", current_lang), '', f"{closing_capital:,.2f}"])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("Non-Current Liabilities", current_lang), '', ''])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Bank Loans", current_lang), '', f"{cfg['bank_loan']:,.2f}"])
+        rows.append([get_ai_translation("Loan Notes", current_lang), '', f"{cfg['loan_notes']:,.2f}"])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Total Non-Current Liabilities", current_lang), '', f"{ncl_total:,.2f}"])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("Current Liabilities", current_lang), '', ''])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Creditors (Accounts Payable)", current_lang), '', f"{cfg['creditors']:,.2f}"])
+        rows.append([get_ai_translation("Bills Payable", current_lang), '', f"{cfg['bills_payable']:,.2f}"])
+        rows.append([get_ai_translation("Bank Overdraft", current_lang), '', f"{cfg['bank_overdraft']:,.2f}"])
+        rows.append([get_ai_translation("Accrued Expenses", current_lang), '', f"{cfg['accrued_expenses']:,.2f}"])
+        rows.append(['', '', ''])
+        rows.append([get_ai_translation("Total Current Liabilities", current_lang), '', f"{current_liabilities:,.2f}"])
+        rows.append(['', '', ''])
+        
+        rows.append([get_ai_translation("TOTAL CAPITAL & LIABILITIES", current_lang), '', f"{total_liabilities_equity:,.2f}"])
+        
+        df = pd.DataFrame(rows, columns=['', '\u200b' + currency, '\u200c' + currency])
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        
         if abs(total_assets - total_liabilities_equity) < 0.01:
             st.success(get_ai_translation("✅ Statement balances correctly!", current_lang))
         else:
-            st.warning(get_ai_translation(f"⚠️ Statement imbalance: {abs(total_assets - total_liabilities_equity):,.2f} AED difference", current_lang))
-    elif not cfg:
-        st.info(get_ai_translation("👆 Enter Balance Sheet data above to generate report", current_lang))
+            st.warning(get_ai_translation(f"⚠️ Statement imbalance: {abs(total_assets - total_liabilities_equity):,.2f} {currency} difference", current_lang))
 
 # ============================================================================
 # TAB 3: CASH FLOW / STATEMENT OF CASH FLOWS - TAB-SPECIFIC INPUTS ONLY
@@ -471,67 +541,69 @@ with tab3:
                 st.success(get_ai_translation("✅ Statement of Cash Flows data saved!", current_lang))
                 st.balloons()
 
-        # DISPLAY SECTION
+        # DISPLAY SECTION - Non-Profit
         cfg = st.session_state.get("cash_flow")
         if cfg and cfg.get("type") == "nonprofit_cf":
-            st.markdown(get_ai_translation("### Operating activities", current_lang))
+            currency = 'AED'
+            period = cfg.get('period', 'For the Year Ended 31 December 2024')
+            
             net_operating = cfg['operating_receipts'] - cfg['operating_payments']
-            operating_data = {
-                'Item': [get_ai_translation("Cash receipts from operations", current_lang), 
-                        get_ai_translation("Cash payments for operations", current_lang),
-                        get_ai_translation("Net cash from operating activities", current_lang)],
-                'Amount (AED)': [cfg['operating_receipts'], -cfg['operating_payments'], net_operating]
-            }
-            st.dataframe(pd.DataFrame(operating_data), use_container_width=True)
-            
-            st.markdown(get_ai_translation("### Investing activities", current_lang))
             net_investing = cfg['investing_inflows'] - cfg['investing_outflows']
-            investing_data = {
-                'Item': [get_ai_translation("Cash inflows from investing", current_lang), 
-                        get_ai_translation("Cash outflows for investing", current_lang),
-                        get_ai_translation("Net cash from investing activities", current_lang)],
-                'Amount (AED)': [cfg['investing_inflows'], -cfg['investing_outflows'], net_investing]
-            }
-            st.dataframe(pd.DataFrame(investing_data), use_container_width=True)
-            
-            st.markdown(get_ai_translation("### Financing activities", current_lang))
             net_financing = cfg['financing_inflows'] - cfg['financing_outflows']
-            financing_data = {
-                'Item': [get_ai_translation("Cash inflows from financing", current_lang), 
-                        get_ai_translation("Cash outflows for financing", current_lang),
-                        get_ai_translation("Net cash from financing activities", current_lang)],
-                'Amount (AED)': [cfg['financing_inflows'], -cfg['financing_outflows'], net_financing]
-            }
-            st.dataframe(pd.DataFrame(financing_data), use_container_width=True)
-            
-            # Final Output
-            st.markdown(get_ai_translation("### Final Output", current_lang))
             net_change = net_operating + net_investing + net_financing
             closing_cash = net_change + cfg['opening_cash']
             
-            final_data = {
-                'Item': [get_ai_translation("→ Net increase/decrease in cash", current_lang), 
-                        get_ai_translation("→ Opening cash balance", current_lang), 
-                        get_ai_translation("→ Closing cash balance", current_lang)],
-                'Amount (AED)': [net_change, cfg['opening_cash'], closing_cash]
-            }
-            st.dataframe(pd.DataFrame(final_data), use_container_width=True)
-        elif not cfg:
-            st.info(get_ai_translation("👆 Enter Statement of Cash Flows data above to generate report", current_lang))
+            rows = []
+            rows.append(['DGP Finance Client', '', ''])
+            rows.append([get_ai_translation("Statement of Cash Flows", current_lang), '', ''])
+            rows.append([period, '', ''])
+            rows.append(['', '', ''])
+            rows.append(['', currency, currency])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Cash Flow from Operating Activities", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Cash receipts from operations", current_lang), '', f"{cfg['operating_receipts']:,.2f}"])
+            rows.append([get_ai_translation("Cash payments for operations", current_lang), '', f"({cfg['operating_payments']:,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Net Cash from Operating Activities", current_lang), '', f"{net_operating:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Cash Flow from Investing Activities", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Cash inflows from investing", current_lang), '', f"{cfg['investing_inflows']:,.2f}"])
+            rows.append([get_ai_translation("Cash outflows for investing", current_lang), '', f"({cfg['investing_outflows']:,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Net Cash from Investing Activities", current_lang), '', f"{net_investing:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Cash Flow from Financing Activities", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Cash inflows from financing", current_lang), '', f"{cfg['financing_inflows']:,.2f}"])
+            rows.append([get_ai_translation("Cash outflows for financing", current_lang), '', f"({cfg['financing_outflows']:,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Net Cash from Financing Activities", current_lang), '', f"{net_financing:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Net Increase / (Decrease) in Cash", current_lang), '', f"{net_change:,.2f}" if net_change >= 0 else f"({abs(net_change):,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Add: Opening Cash Balance", current_lang), '', f"{cfg['opening_cash']:,.2f}"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Closing Cash Balance", current_lang), '', f"{closing_cash:,.2f}"])
+            
+            df = pd.DataFrame(rows, columns=['', '\u200b' + currency, '\u200c' + currency])
+            st.dataframe(df, use_container_width=True, hide_index=True)
     
-    else:
-        # EXISTING CASH FLOW CODE (unchanged)
+    else:  # Regular Cash Flow Statement - ENTIRE BLOCK INSIDE ELSE
         st.subheader(get_ai_translation("Cash Flow Statement", current_lang))
         
-        # AUTO-IMPORT LOGIC: Pull from Income Statement & Balance Sheet if available
+        # AUTO-IMPORT LOGIC
         is_data = st.session_state.get("income_statement")
         bs_data = st.session_state.get("balance_sheet")
         cf_defaults = {}
         
         if is_data and is_data.get("type") == "income_statement":
-            # Depreciation add-back for Operating Activities
             cf_defaults['depreciation_addback'] = is_data.get('depreciation', 0.0)
-            # Net Profit as starting point for Operating Activities display
             net_sales = is_data['sales'] - is_data['sales_returns']
             cogs = is_data['opening_stock'] + is_data['purchases'] + is_data['carriage_in'] - is_data['closing_stock']
             gross_profit = net_sales - cogs
@@ -546,10 +618,14 @@ with tab3:
             cf_defaults['net_profit'] = gross_profit + other_income_total - total_expenses
             
         if bs_data:
-            # Opening Cash = Cash at Bank + Cash in Hand from Balance Sheet
             cf_defaults['opening_cash'] = bs_data.get('cash_bank', 0.0) + bs_data.get('cash_hand', 0.0)
         
-        # INPUT SECTION - Only Cash Flow fields
+        if cf_defaults.get('depreciation_addback'):
+           st.session_state.cf_depreciation = cf_defaults['depreciation_addback']
+        if cf_defaults.get('opening_cash'):
+           st.session_state.cf_opening = cf_defaults['opening_cash']
+        
+        # INPUT SECTION - Regular Cash Flow
         with st.expander(get_ai_translation("📝 Enter Cash Flow Data", current_lang), expanded=True):
             st.subheader(get_ai_translation("Operating Activities", current_lang))
             col1, col2 = st.columns(2)
@@ -559,9 +635,7 @@ with tab3:
                 wages_paid = st.number_input(get_ai_translation("Wages paid", current_lang), min_value=0.0, step=100.0, key="cf_wages")
             with col2:
                 rent_expenses_paid = st.number_input(get_ai_translation("Rent/expenses paid", current_lang), min_value=0.0, step=100.0, key="cf_rent")
-                # Auto-fill Depreciation add-back from Income Statement
-                depreciation_default = cf_defaults.get('depreciation_addback', 0.0)
-                depreciation_addback = st.number_input(get_ai_translation("Adjustment: Depreciation (non-cash)", current_lang), min_value=0.0, step=100.0, value=depreciation_default, key="cf_depreciation")
+                depreciation_addback = st.number_input(get_ai_translation("Adjustment: Depreciation (non-cash)", current_lang), min_value=0.0, step=100.0, key="cf_depreciation")
                 wc_change = st.number_input(get_ai_translation("Adjustment: Working capital changes", current_lang), min_value=-1000000000.0, value=0.0, step=100.0, key="cf_wc")
 
             st.subheader(get_ai_translation("Investing Activities", current_lang))
@@ -583,13 +657,12 @@ with tab3:
             st.subheader(get_ai_translation("Final Output", current_lang))
             col7, col8 = st.columns(2)
             with col7:
-                # Auto-fill Opening Cash from Balance Sheet
-                opening_cash_default = cf_defaults.get('opening_cash', 0.0)
-                opening_cash = st.number_input(get_ai_translation("→ Opening cash balance", current_lang), min_value=0.0, step=1000.0, value=opening_cash_default, key="cf_opening")
+                opening_cash = st.number_input(get_ai_translation("→ Opening cash balance", current_lang), min_value=0.0, step=1000.0, key="cf_opening")
             with col8:
                 # Closing cash will be calculated
+                 pass  # ✅ Add this line to fix the syntax error
 
-             if st.button(get_ai_translation("📊 Generate Cash Flow Statement", current_lang), type="primary", key="btn_cf"):
+            if st.button(get_ai_translation("📊 Generate Cash Flow Statement", current_lang), type="primary", key="btn_cf"):
                 st.session_state.cash_flow = {
                     "cash_from_customers": cash_from_customers, "cash_to_suppliers": cash_to_suppliers,
                     "wages_paid": wages_paid, "rent_expenses_paid": rent_expenses_paid,
@@ -601,50 +674,68 @@ with tab3:
                 }
                 st.success(get_ai_translation("✅ Cash Flow data saved!", current_lang))
                 st.balloons()
-
-        # DISPLAY SECTION
+        
+        # DISPLAY SECTION - Regular Cash Flow (INSIDE ELSE BLOCK)
         cfg = st.session_state.get("cash_flow")
         if cfg:
-            st.markdown(get_ai_translation("### Operating Activities", current_lang))
-            operating_data = {
-                'Item': [get_ai_translation("Cash received from customers", current_lang), get_ai_translation("Cash paid to suppliers", current_lang), get_ai_translation("Wages paid", current_lang), 
-                        get_ai_translation("Rent/expenses paid", current_lang), get_ai_translation("Adjustment: Depreciation (non-cash)", current_lang), 
-                        get_ai_translation("Adjustment: Working capital changes", current_lang), get_ai_translation("Net Cash from Operating Activities", current_lang)],
-                'Amount (AED)': [cfg['cash_from_customers'], cfg['cash_to_suppliers'], cfg['wages_paid'], 
-                               cfg['rent_expenses_paid'], cfg['depreciation_addback'], cfg['wc_change'], 
-                               cfg['cash_from_customers'] + cfg['cash_to_suppliers'] + cfg['wages_paid'] + cfg['rent_expenses_paid'] + cfg['depreciation_addback'] + cfg['wc_change']]
-            }
-            st.dataframe(pd.DataFrame(operating_data), use_container_width=True)
+            currency = 'AED'
+            period = 'For the Year Ended 31 March 2025'
             
-            st.markdown(get_ai_translation("### Investing Activities", current_lang))
-            investing_data = {
-                'Item': [get_ai_translation("Purchase of assets (machinery, land)", current_lang), get_ai_translation("Sale of assets", current_lang), get_ai_translation("Net Cash from Investing Activities", current_lang)],
-                'Amount (AED)': [-cfg['purchase_assets'], cfg['sale_assets'], -cfg['purchase_assets'] + cfg['sale_assets']]
-            }
-            st.dataframe(pd.DataFrame(investing_data), use_container_width=True)
+            net_operating = (cfg.get('cash_from_customers', 0) + cfg.get('cash_to_suppliers', 0) + 
+                           cfg.get('wages_paid', 0) + cfg.get('rent_expenses_paid', 0) + 
+                           cfg.get('depreciation_addback', 0) + cfg.get('wc_change', 0))
+            net_investing = -cfg.get('purchase_assets', 0) + cfg.get('sale_assets', 0)
+            net_financing = (cfg.get('capital_introduced', 0) + cfg.get('loan_received', 0) - 
+                           cfg.get('drawings_cf', 0) - cfg.get('interest_paid', 0))
+            net_change = net_operating + net_investing + net_financing
+            closing_cash = net_change + cfg.get('opening_cash', 0)
             
-            st.markdown(get_ai_translation("### Financing Activities", current_lang))
-            financing_data = {
-                'Item': [get_ai_translation("Owner capital introduced", current_lang), get_ai_translation("Loan received/repayment", current_lang), get_ai_translation("Drawings", current_lang), 
-                        get_ai_translation("Interest paid", current_lang), get_ai_translation("Net Cash from Financing Activities", current_lang)],
-                'Amount (AED)': [cfg['capital_introduced'], cfg['loan_received'], -cfg['drawings_cf'], 
-                               -cfg['interest_paid'], cfg['capital_introduced'] + cfg['loan_received'] - cfg['drawings_cf'] - cfg['interest_paid']]
-            }
-            st.dataframe(pd.DataFrame(financing_data), use_container_width=True)
+            rows = []
+            rows.append(['DGP Finance Client', '', ''])
+            rows.append([get_ai_translation("Cash Flow Statement", current_lang), '', ''])
+            rows.append([period, '', ''])
+            rows.append(['', '', ''])
+            rows.append(['', currency, currency])
+            rows.append(['', '', ''])
             
-            st.markdown(get_ai_translation("### Final Output", current_lang))
-            net_change = (cfg['cash_from_customers'] + cfg['cash_to_suppliers'] + cfg['wages_paid'] + cfg['rent_expenses_paid'] + 
-                         cfg['depreciation_addback'] + cfg['wc_change'] - cfg['purchase_assets'] + cfg['sale_assets'] + 
-                         cfg['capital_introduced'] + cfg['loan_received'] - cfg['drawings_cf'] - cfg['interest_paid'])
-            closing_cash = net_change + cfg['opening_cash']
+            rows.append([get_ai_translation("Cash Flow from Operating Activities", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Cash received from customers", current_lang), '', f"{cfg.get('cash_from_customers', 0):,.2f}"])
+            rows.append([get_ai_translation("Cash paid to suppliers", current_lang), '', f"({abs(cfg.get('cash_to_suppliers', 0)):,.2f})" if cfg.get('cash_to_suppliers', 0) < 0 else f"{cfg.get('cash_to_suppliers', 0):,.2f}"])
+            rows.append([get_ai_translation("Wages paid", current_lang), '', f"({abs(cfg.get('wages_paid', 0)):,.2f})" if cfg.get('wages_paid', 0) < 0 else f"{cfg.get('wages_paid', 0):,.2f}"])
+            rows.append([get_ai_translation("Rent/expenses paid", current_lang), '', f"({abs(cfg.get('rent_expenses_paid', 0)):,.2f})" if cfg.get('rent_expenses_paid', 0) < 0 else f"{cfg.get('rent_expenses_paid', 0):,.2f}"])
+            rows.append([get_ai_translation("Adjustment: Depreciation (non-cash)", current_lang), '', f"{cfg.get('depreciation_addback', 0):,.2f}"])
+            rows.append([get_ai_translation("Adjustment: Working capital changes", current_lang), '', f"{cfg.get('wc_change', 0):,.2f}"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Net Cash from Operating Activities", current_lang), '', f"{net_operating:,.2f}"])
+            rows.append(['', '', ''])
             
-            final_data = {
-                'Item': [get_ai_translation("→ Net increase/decrease in cash", current_lang), get_ai_translation("→ Opening cash balance", current_lang), get_ai_translation("→ Closing cash balance", current_lang)],
-                'Amount (AED)': [net_change, cfg['opening_cash'], closing_cash]
-            }
-            st.dataframe(pd.DataFrame(final_data), use_container_width=True)
-        elif not cfg:
-            st.info(get_ai_translation("👆 Enter Cash Flow data above to generate report", current_lang))
+            rows.append([get_ai_translation("Cash Flow from Investing Activities", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Purchase of assets (machinery, land)", current_lang), '', f"({cfg.get('purchase_assets', 0):,.2f})"])
+            rows.append([get_ai_translation("Sale of assets", current_lang), '', f"{cfg.get('sale_assets', 0):,.2f}"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Net Cash from Investing Activities", current_lang), '', f"{net_investing:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Cash Flow from Financing Activities", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Owner capital introduced", current_lang), '', f"{cfg.get('capital_introduced', 0):,.2f}"])
+            rows.append([get_ai_translation("Loan received/repayment", current_lang), '', f"{cfg.get('loan_received', 0):,.2f}"])
+            rows.append([get_ai_translation("Drawings", current_lang), '', f"({cfg.get('drawings_cf', 0):,.2f})"])
+            rows.append([get_ai_translation("Interest paid", current_lang), '', f"({cfg.get('interest_paid', 0):,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Net Cash from Financing Activities", current_lang), '', f"{net_financing:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Net Increase / (Decrease) in Cash", current_lang), '', f"{net_change:,.2f}" if net_change >= 0 else f"({abs(net_change):,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Add: Opening Cash Balance", current_lang), '', f"{cfg.get('opening_cash', 0):,.2f}"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Closing Cash Balance", current_lang), '', f"{closing_cash:,.2f}"])
+            
+            df = pd.DataFrame(rows, columns=['', '\u200b' + currency, '\u200c' + currency])
+            st.dataframe(df, use_container_width=True, hide_index=True)
 
 # ============================================================================
 # TAB 4: APPROPRIATION ACCOUNT - TAB-SPECIFIC INPUTS ONLY (Partnership Only)
@@ -672,11 +763,13 @@ with tab4:
                             is_data['depreciation'], is_data['interest_expense'], is_data['general_expenses']]
             total_expenses = sum(expenses_list)
             net_profit_default = gross_profit + other_income_total - total_expenses
-        
+        # ✅ Always update from Income Statement if available
+        if net_profit_default:
+            st.session_state.app_net_profit = net_profit_default
+
         # INPUT SECTION - Only Appropriation fields
         with st.expander(get_ai_translation("📝 Enter Appropriation Account Data", current_lang), expanded=True):
-            # Auto-fill Net Profit from Income Statement
-            net_profit = st.number_input(get_ai_translation("Net Profit (from Income Statement)", current_lang), min_value=-1000000000.0, value=net_profit_default, step=100.0, key="app_net_profit")
+            net_profit = st.number_input(get_ai_translation("Net Profit (from Income Statement)", current_lang), min_value=-1000000000.0, value=0.00, step=100.0, key="app_net_profit")
             
             st.subheader(get_ai_translation("Partnership Details", current_lang))
             col1, col2 = st.columns(2)
@@ -704,32 +797,30 @@ with tab4:
                 }
                 st.success(get_ai_translation("✅ Appropriation Account data saved!", current_lang))
                 st.balloons()
-
+                        
         # DISPLAY SECTION
         cfg = st.session_state.get("appropriation")
         if cfg:
+            currency = 'AED'
+            period = 'For the Year Ended 31 March 2025'
+            
             p1 = cfg['p1']
             p2 = cfg['p2']
             
-            # Interest on Capital
             p1_int_cap = p1['capital'] * (p1['int_cap_rate'] / 100)
             p2_int_cap = p2['capital'] * (p2['int_cap_rate'] / 100)
             total_int_cap = p1_int_cap + p2_int_cap
             
-            # Salaries to Partners
             p1_sal = p1['salary']
             p2_sal = p2['salary']
             total_sal = p1_sal + p2_sal
             
-            # Interest on Drawings (example 5%)
             p1_int_draw = p1['drawings'] * 0.05
             p2_int_draw = p2['drawings'] * 0.05
             total_int_draw = p1_int_draw + p2_int_draw
             
-            # Remaining Profit
             remaining = cfg['net_profit'] - total_int_cap - total_sal + total_int_draw
             
-            # Split according to ratio
             ratio = cfg['ratio']
             r_parts = ratio.split(':')
             r1, r2 = int(r_parts[0]), int(r_parts[1])
@@ -737,25 +828,57 @@ with tab4:
             p1_share = remaining * (r1 / total_ratio)
             p2_share = remaining * (r2 / total_ratio)
             
-            items = [
-                (get_ai_translation("Net Profit (from Income Statement)", current_lang), cfg['net_profit']),
-                (get_ai_translation("ADD: Interest on Capital", current_lang), total_int_cap),
-                (f"  - {p1['name']}", p1_int_cap),
-                (f"  - {p2['name']}", p2_int_cap),
-                (get_ai_translation("ADD: Salaries to Partners", current_lang), total_sal),
-                (f"  - {p1['name']}", p1_sal),
-                (f"  - {p2['name']}", p2_sal),
-                (get_ai_translation("LESS: Interest on Drawings", current_lang), -total_int_draw),
-                (f"  - {p1['name']}", -p1_int_draw),
-                (f"  - {p2['name']}", -p2_int_draw),
-                (get_ai_translation("Remaining Profit shared in agreed ratio", current_lang), remaining),
-                (f"  - {p1['name']} ({ratio})", p1_share),
-                (f"  - {p2['name']} ({ratio})", p2_share)
-            ]
+            rows = []
+            rows.append(['DGP Finance Client', '', ''])
+            rows.append([get_ai_translation("Appropriation Account", current_lang), '', ''])
+            rows.append([period, '', ''])
+            rows.append(['', '', ''])
+            rows.append(['', currency, currency])
+            rows.append(['', '', ''])
             
-            st.dataframe(pd.DataFrame(items, columns=["Item", "Amount (AED)"]), use_container_width=True)
-        elif not cfg:
-            st.info(get_ai_translation("👆 Enter Appropriation Account data above to generate report", current_lang))
+            rows.append([get_ai_translation("Net Profit for the Year", current_lang), '', f"{cfg['net_profit']:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Less: Appropriations", current_lang), '', ''])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Partner Salaries", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([f"{p1['name']}", '', f"({p1_sal:,.2f})"])
+            rows.append([f"{p2['name']}", '', f"({p2_sal:,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Total Salaries", current_lang), '', f"({total_sal:,.2f})"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Interest on Capital", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([f"{p1['name']}", '', f"({p1_int_cap:,.2f})"])
+            rows.append([f"{p2['name']}", '', f"({p2_int_cap:,.2f})"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Total Interest on Capital", current_lang), '', f"({total_int_cap:,.2f})"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Add: Interest on Drawings", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([f"{p1['name']}", '', f"{p1_int_draw:,.2f}"])
+            rows.append([f"{p2['name']}", '', f"{p2_int_draw:,.2f}"])
+            rows.append(['', '', ''])
+            rows.append([get_ai_translation("Total Interest on Drawings", current_lang), '', f"{total_int_draw:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Residual Profit", current_lang), '', f"{remaining:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation(f"Shared in Ratio {ratio}", current_lang), '', ''])
+            rows.append(['', '', ''])
+            rows.append([f"{p1['name']}", '', f"{p1_share:,.2f}"])
+            rows.append([f"{p2['name']}", '', f"{p2_share:,.2f}"])
+            rows.append(['', '', ''])
+            
+            rows.append([get_ai_translation("Total Appropriated", current_lang), '', f"{cfg['net_profit']:,.2f}"])
+            
+            df = pd.DataFrame(rows, columns=['', '\u200b' + currency, '\u200c' + currency])
+            st.dataframe(df, use_container_width=True, hide_index=True)
 
 # ============================================================================
 # TAB 5: FINANCIAL RATIOS - WITH SIDEBAR SELECTOR (ONLY HERE)

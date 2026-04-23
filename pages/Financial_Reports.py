@@ -7,6 +7,13 @@ from statements import (
     generate_appropriation_account,
     RATIOS_DB
 )
+from supabase import create_client
+
+supabase = create_client(
+    st.secrets["SUPABASE_URL"],
+    st.secrets["SUPABASE_KEY"]
+)
+
 from portfolio_manager import save_report
 
 st.set_page_config(page_title="DGP Finance", layout="wide", page_icon="💰")

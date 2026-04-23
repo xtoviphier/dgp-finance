@@ -4,7 +4,97 @@ import plotly.graph_objects as go
 import plotly.express as px
 import yfinance as yf
 from datetime import datetime
+import uuid
+from supabase import create_client
 
+supabase = create_client(
+    st.secrets["SUPABASE_URL"],
+    st.secrets["SUPABASE_KEY"]
+)
+
+user = supabase.auth.get_user()
+
+if user and user.user:
+    st.session_state.user = user.user.id
+
+# ================= LOGIN GATE =================
+if "user" not in st.session_state:
+    st.session_state.user = None
+
+if st.session_state.user is None:
+    st.title("Login")
+
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        try:
+            res = supabase.auth.sign_in_with_password({
+                "email": email,
+                "password": password
+            })
+            st.session_state.user = res.user.id
+            st.success("Logged in")
+            st.rerun()
+        except Exception:
+            st.error("Invalid login credentials")
+
+    # 👇 ADD THESE HERE (before st.stop)
+
+    if st.button("Sign Up"):
+        try:
+            res = supabase.auth.sign_up({
+                "email": email,
+                "password": password
+            })
+            st.success("Account created. Now log in.")
+        except Exception:
+            st.error("Signup failed")
+
+    if st.button("Forgot Password"):
+        try:
+            supabase.auth.reset_password_for_email(email)
+            st.success("Reset email sent")
+        except Exception:
+            st.error("Failed to send reset email")
+
+    st.stop()
+
+if st.session_state.user:
+    st.subheader("Update Password")
+
+    new_password = st.text_input("New Password", type="password")
+
+    if st.button("Update Password"):
+        try:
+            supabase.auth.update_user({
+                "password": new_password
+            })
+            st.success("Password updated successfully")
+        except Exception:
+            st.error("Failed to update password")
+# =============================================
+
+if st.button("Forgot Password?"):
+    if not email:
+        st.warning("Enter your email first")
+    else:
+        try:
+            supabase.auth.reset_password_for_email(email)
+            st.success("Password reset email sent. Check your inbox.")
+        except Exception as e:
+            st.error("Failed to send reset email")
+
+if st.button("Sign Up"):
+    res = supabase.auth.sign_up({
+        "email": email,
+        "password": password
+    })
+
+    if res.user:
+        st.success("Account created. You can now log in.")
+    else:
+        st.error("Signup failed")
 # Import translator
 try:
     from translator import get_ai_translation
@@ -34,7 +124,14 @@ def t(text):
 
 # Sidebar with consistent UI
 with st.sidebar:
-    # Enable AI Translation toggle (matching Financial Reports)
+    # Show logged-in user + logout
+    st.markdown(f"👤 Logged in as: {st.session_state.user}")
+
+    if st.button("Logout"):
+        st.session_state.user = None
+        st.rerun()
+
+    # Enable AI Translation toggle
     st.session_state.translate_mode = st.toggle(
         t("🌐 Enable AI Translation"), 
         value=st.session_state.translate_mode

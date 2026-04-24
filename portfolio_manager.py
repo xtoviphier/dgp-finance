@@ -44,8 +44,6 @@ def save_report(report_name: str, report_type: str, org_type: str, data: dict):
             "created_at": datetime.now().isoformat(),
             "data": data
         }).execute()
-
-        st.write(response)
         
     except Exception as e:
         st.error(f"Supabase error: {e}")

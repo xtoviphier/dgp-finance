@@ -40,10 +40,18 @@ if st.session_state.user is None:
             st.session_state.user = res.user.id
             st.session_state.email = res.user.email
 
-            # 🔥 VERIFY TERMS ACCEPTED
+            # 🔥 VERIFY TERMS ACCEPTED (FIXED)
             user_record = supabase.table("users").select("*").eq("id", res.user.id).execute()
 
-            if not user_record.data[0].get("accepted_terms", False):    
+            if not user_record.data:  # FIXED
+                supabase.table("users").insert({
+                    "id": res.user.id,
+                    "email": res.user.email,
+                    "accepted_terms": True,
+                    "accepted_at": datetime.now().isoformat()
+                }).execute()
+
+            elif not user_record.data[0].get("accepted_terms", False):  # FIXED
                 st.error("You must accept Terms & Conditions to use this app")
                 st.session_state.user = None
                 st.stop()
@@ -65,46 +73,45 @@ if st.session_state.user is None:
                 print("LOGIN ERROR:", e)
 
     accept_terms = st.checkbox("I agree to the Terms & Conditions")
-    # SIGN UP
-if st.button("Sign Up"):
-    if not accept_terms:
-        st.error("You must accept the Terms & Conditions")
-    else:
-        try:
-            res = supabase.auth.sign_up({
-                "email": email,
-                "password": password
-            })
 
-            # ✅ Always show success if no exception
-            st.success("Signup successful. Check your email to confirm your account before logging in")
+    # SIGN UP (FIXED INDENTATION)
+    if st.button("Sign Up"):  # FIXED (moved inside login gate)
+        if not accept_terms:
+            st.error("You must accept the Terms & Conditions")
+        else:
+            try:
+                res = supabase.auth.sign_up({
+                    "email": email,
+                    "password": password
+                })
 
-            # ✅ Insert ONLY if user exists (email confirmation OFF case)
-            if res.user:
-                try:
-                    supabase.table("users").insert({
-                        "id": res.user.id,
-                        "email": email,
-                        "accepted_terms": True,
-                        "accepted_at": datetime.now().isoformat()
-                    }).execute()
-                except Exception as db_error:
-                    print("DB Insert Error:", db_error)
+                st.success("Signup successful. Check your email to confirm your account before logging in")
 
-        except Exception as e:
-            error_msg = str(e).lower()
+                if res.user:
+                    try:
+                        supabase.table("users").insert({
+                            "id": res.user.id,
+                            "email": email,
+                            "accepted_terms": True,
+                            "accepted_at": datetime.now().isoformat()
+                        }).execute()
+                    except Exception as db_error:
+                        print("DB Insert Error:", db_error)
 
-            if "user already registered" in error_msg:
-                st.warning("Account already exists. Try logging in.")
+            except Exception as e:
+                error_msg = str(e).lower()
 
-            elif "email rate limit exceeded" in error_msg:
-                st.warning("Too many attempts. Try again later.")
+                if "user already registered" in error_msg:
+                    st.warning("Account already exists. Try logging in.")
 
-            else:
-                st.error("Signup failed")
-                print("Signup Error:", e)
+                elif "email rate limit exceeded" in error_msg:
+                    st.warning("Too many attempts. Try again later.")
 
-    # FORGOT PASSWORD (✔️ correct place)
+                else:
+                    st.error("Signup failed")
+                    print("Signup Error:", e)
+
+    # FORGOT PASSWORD
     if st.button("Forgot Password"):
         if not email:
             st.warning("Enter your email first")
@@ -118,6 +125,7 @@ if st.button("Sign Up"):
 
     st.stop()
 
+# ================= AUTH CHECK =================
 if st.session_state.user:
     try:
         user_record = supabase.table("users")\
@@ -125,7 +133,15 @@ if st.session_state.user:
             .eq("id", st.session_state.user)\
             .execute()
 
-        if not user_record.data or not user_record.data[0]["accepted_terms"]:
+        if not user_record.data:  # FIXED
+            supabase.table("users").insert({
+                "id": st.session_state.user,
+                "email": email_display,
+                "accepted_terms": True,
+                "accepted_at": datetime.now().isoformat()
+            }).execute()
+
+        elif not user_record.data[0]["accepted_terms"]:  # FIXED
             st.warning("Please accept Terms & Conditions to continue")
             st.stop()
 
@@ -133,6 +149,7 @@ if st.session_state.user:
         st.error("Auth check failed")
         print("AUTH ERROR:", e)
         st.stop()
+        
 # Import translator
 try:
     from translator import get_ai_translation

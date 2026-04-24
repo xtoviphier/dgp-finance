@@ -1,0 +1,21 @@
+{
+  "id": "20260425_015424",
+  "name": "Statement of Financial Position - Year Ended 31 March 2025",
+  "type": "Statement of Financial Position (Public Sector)",
+  "org_type": "Public Sector",
+  "created_at": "2026-04-25 01:54:24",
+  "filename": "20260425_015424_Statement_of_Financial_Position_-_Year_Ended_31_March_2025.json",
+  "data": {
+    "type": "public_sector_bs",
+    "land_building": 6000000.0,
+    "equipment": 2000000.0,
+    "furniture": 500000.0,
+    "accumulated_depreciation": 1000000.0,
+    "receivables": 1000000.0,
+    "cash_equivalents": 1500000.0,
+    "payables": 800000.0,
+    "accrued_expenses": 300000.0,
+    "loans": 2200000.0,
+    "accumulated_surplus": 6000000.0
+  }
+}

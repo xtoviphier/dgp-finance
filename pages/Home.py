@@ -66,38 +66,43 @@ if st.session_state.user is None:
 
     accept_terms = st.checkbox("I agree to the Terms & Conditions")
     # SIGN UP
-    if st.button("Sign Up"):
-        if not accept_terms:
-            st.error("You must accept the Terms & Conditions")
-        else:
-            try:
-                res = supabase.auth.sign_up({
-                    "email": email,
-                    "password": password
-                })
-            
-                if res.user:
+if st.button("Sign Up"):
+    if not accept_terms:
+        st.error("You must accept the Terms & Conditions")
+    else:
+        try:
+            res = supabase.auth.sign_up({
+                "email": email,
+                "password": password
+            })
+
+            # ✅ Always show success if no exception
+            st.success("Signup successful. Check your email to confirm your account before logging in")
+
+            # ✅ Insert ONLY if user exists (email confirmation OFF case)
+            if res.user:
+                try:
                     supabase.table("users").insert({
                         "id": res.user.id,
                         "email": email,
                         "accepted_terms": True,
                         "accepted_at": datetime.now().isoformat()
                     }).execute()
+                except Exception as db_error:
+                    print("DB Insert Error:", db_error)
 
-                st.success("Signup successful. Check your email to confirm your account before logging in")
+        except Exception as e:
+            error_msg = str(e).lower()
 
-            except Exception as e:
-                error_msg = str(e).lower()
+            if "user already registered" in error_msg:
+                st.warning("Account already exists. Try logging in.")
 
-                if "user already registered" in error_msg:
-                    st.warning("Account already exists. Try logging in.")
+            elif "email rate limit exceeded" in error_msg:
+                st.warning("Too many attempts. Try again later.")
 
-                elif "email rate limit exceeded" in error_msg:
-                    st.warning("Too many attempts. Try again later.")
-
-                else:
-                    st.error("Signup issue - check console")
-                    print("Signup Error:", e)
+            else:
+                st.error("Signup failed")
+                print("Signup Error:", e)
 
     # FORGOT PASSWORD (✔️ correct place)
     if st.button("Forgot Password"):

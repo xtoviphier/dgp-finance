@@ -1,0 +1,23 @@
+{
+  "id": "20260425_015549",
+  "name": "Statement of Cash Flows - As of 31 March 2025",
+  "type": "Statement of Cash Flows (Public Sector)",
+  "org_type": "Public Sector",
+  "created_at": "2026-04-25 01:55:49",
+  "filename": "20260425_015549_Statement_of_Cash_Flows_-_As_of_31_March_2025.json",
+  "data": {
+    "type": "public_sector_cf",
+    "currency": "EUR",
+    "cash_from_grants": 5000000.0,
+    "cash_from_services": 1000000.0,
+    "cash_to_employees": 2400000.0,
+    "cash_to_suppliers": 2300000.0,
+    "purchase_assets": 800000.0,
+    "sale_assets": 0.0,
+    "government_funding": 0.0,
+    "loans_received": 500000.0,
+    "loans_repaid": 300000.0,
+    "interest_paid": 50000.0,
+    "opening_cash": 0.0085
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "20260425_015314",
+  "name": "Statement of Financial Performance - Year Ended 31 March 2025",
+  "type": "Statement of Financial Performance (Public Sector)",
+  "org_type": "Public Sector",
+  "created_at": "2026-04-25 01:53:14",
+  "filename": "20260425_015314_Statement_of_Financial_Performance_-_Year_Ended_31_March_2025.json",
+  "data": {
+    "type": "public_sector_performance",
+    "period": "Year Ended 31 March 2025",
+    "currency": "EUR",
+    "government_grants": 5000000.0,
+    "tax_revenue": 0.0,
+    "service_revenue": 1200000.0,
+    "other_income": 300000.0,
+    "employee_costs": 2400000.0,
+    "admin_expenses": 600000.0,
+    "utilities": 247000.0,
+    "repairs_maintenance": 200000.0,
+    "depreciation": 300000.0,
+    "interest_expense": 46000.0,
+    "program_costs": 1800000.0,
+    "other_expenses": 200000.0
+  }
+}

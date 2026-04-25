@@ -21,7 +21,7 @@ if "user" not in st.session_state:
     
 email_display = st.session_state.get("email", "Unknown")
 
-if st.session_state.user:
+if st.session_state.user and "access_token" in st.session_state:
     user = supabase.auth.get_user()
     if user and user.user:
         email_display = user.user.email
@@ -41,16 +41,24 @@ if st.session_state.user is None:
                 "password": password
             })
 
+            # ✅ CHECK SESSION FIRST (FIXED POSITION)
+            if not res.session:
+                st.error("No session returned. Confirm email first.")
+                st.stop()
+
             # ✅ STORE USER + SESSION
             st.session_state.user = res.user.id
             st.session_state.email = res.user.email
             st.session_state.access_token = res.session.access_token
 
-            # ✅ ATTACH SESSION TO CLIENT (CRITICAL FIX)
+            # ✅ ATTACH SESSION TO CLIENT
             supabase.postgrest.auth(st.session_state.access_token)
 
             # 🔥 VERIFY TERMS ACCEPTED
-            user_record = supabase.table("users").select("*").eq("id", res.user.id).execute()
+            user_record = supabase.table("users")\
+                .select("*")\
+                .eq("id", res.user.id)\
+                .execute()
 
             if not user_record.data:
                 supabase.table("users").insert({

@@ -12,6 +12,10 @@ supabase = create_client(
     st.secrets["SUPABASE_KEY"]
 )
 
+# 🔥 RE-ATTACH SESSION ON EVERY RERUN
+if "access_token" in st.session_state:
+    supabase.postgrest.auth(st.session_state.access_token)
+    
 if "user" not in st.session_state:
     st.session_state.user = None
     
@@ -37,13 +41,18 @@ if st.session_state.user is None:
                 "password": password
             })
 
+            # ✅ STORE USER + SESSION
             st.session_state.user = res.user.id
             st.session_state.email = res.user.email
+            st.session_state.access_token = res.session.access_token
 
-            # 🔥 VERIFY TERMS ACCEPTED (FIXED)
+            # ✅ ATTACH SESSION TO CLIENT (CRITICAL FIX)
+            supabase.postgrest.auth(st.session_state.access_token)
+
+            # 🔥 VERIFY TERMS ACCEPTED
             user_record = supabase.table("users").select("*").eq("id", res.user.id).execute()
 
-            if not user_record.data:  # FIXED
+            if not user_record.data:
                 supabase.table("users").insert({
                     "id": res.user.id,
                     "email": res.user.email,
@@ -51,7 +60,7 @@ if st.session_state.user is None:
                     "accepted_at": datetime.now().isoformat()
                 }).execute()
 
-            elif not user_record.data[0].get("accepted_terms", False):  # FIXED
+            elif not user_record.data[0].get("accepted_terms", False):
                 st.error("You must accept Terms & Conditions to use this app")
                 st.session_state.user = None
                 st.stop()
@@ -74,8 +83,8 @@ if st.session_state.user is None:
 
     accept_terms = st.checkbox("I agree to the Terms & Conditions")
 
-    # SIGN UP (FIXED INDENTATION)
-    if st.button("Sign Up"):  # FIXED (moved inside login gate)
+    # SIGN UP
+    if st.button("Sign Up"):
         if not accept_terms:
             st.error("You must accept the Terms & Conditions")
         else:

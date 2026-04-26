@@ -5,60 +5,12 @@ import json  # ✅ ADD THIS LINE
 from portfolio_manager import load_all_reports, get_report_data, REPORTS_DIR
 from datetime import datetime
 
-# Import translator (matching Financial Reports)
-try:
-    from translator import get_ai_translation
-except ImportError:
-    def get_ai_translation(text, lang):
-        return text
+from translation_ui import init_translation, render_translation_sidebar, t
 
-st.set_page_config(page_title="Portfolio • DGP Finance", page_icon="📁", layout="wide")
+init_translation()
 
-# Initialize session state for translation
-if 'lang' not in st.session_state:
-    st.session_state.lang = 'en'
-if 'translate_mode' not in st.session_state:
-    st.session_state.translate_mode = True
-
-# Helper function to conditionally translate
-def t(text):
-    return get_ai_translation(text, st.session_state.lang) if st.session_state.translate_mode else text
-
-# Sidebar with translation (matching Financial Reports)
 with st.sidebar:
-    # Enable AI Translation toggle
-    st.session_state.translate_mode = st.toggle(
-        t("🌐 Enable AI Translation"), 
-        value=st.session_state.translate_mode
-    )
-    
-    # Language selector
-    st.markdown(t("### Language"))
-    lang_options = {
-        "en": "English", "ar": "العربية", "fr": "Français", "es": "Español",
-        "pt": "Português", "ru": "Русский", "de": "Deutsch", "sw": "Kiswahili", "zh": "中文"
-    }
-    selected_lang = st.selectbox(
-        t("Select Language"),
-        options=list(lang_options.keys()),
-        format_func=lambda x: lang_options[x],
-        index=list(lang_options.keys()).index(st.session_state.lang),
-        key="lang_selector_portfolio"
-    )
-    
-    if selected_lang != st.session_state.lang:
-        st.session_state.lang = selected_lang
-        st.rerun()
-    
-    current_lang = st.session_state.lang
-    
-    # RTL support for Arabic
-    if current_lang == "ar":
-        st.markdown("""
-        <style>
-        .stApp { direction: rtl; text-align: right; }
-        </style>
-        """, unsafe_allow_html=True)
+    render_translation_sidebar()
 
 # ============================================================================
 # HELPER FUNCTIONS FOR DELETE/RENAME

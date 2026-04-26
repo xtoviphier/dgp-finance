@@ -7,6 +7,14 @@ from datetime import datetime
 import uuid
 from supabase import create_client
 
+# Page config
+st.set_page_config(
+    page_title="DGP Finance • Dashboard",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
     st.secrets["SUPABASE_KEY"]
@@ -167,75 +175,29 @@ if st.session_state.user:
         print("AUTH ERROR:", e)
         st.stop()
         
-# Import translator
-try:
-    from translator import get_ai_translation
-except ImportError:
-    def get_ai_translation(text, lang):
-        return text
+# ================= TRANSLATION SYSTEM =================
+from translation_ui import init_translation, render_translation_sidebar, t
 
-# Page config
-st.set_page_config(
-    page_title="DGP Finance • Dashboard",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# Initialize translation (handles lang + toggle)
+init_translation()
 
-# Initialize session state
-if 'lang' not in st.session_state:
-    st.session_state.lang = 'en'
+# Keep ONLY non-translation session state
 if 'selected_symbol' not in st.session_state:
     st.session_state.selected_symbol = None
-if 'translate_mode' not in st.session_state:
-    st.session_state.translate_mode = True
 
-# Helper function to conditionally translate
-def t(text):
-    return get_ai_translation(text, st.session_state.lang) if st.session_state.translate_mode else text
-
-# Sidebar with consistent UI
+# Sidebar
 with st.sidebar:
-    # Show logged-in user + logout
+    # Existing UI
     st.markdown(f"👤 {email_display}")
 
     if st.button("Logout"):
         st.session_state.user = None
         st.rerun()
 
-    # Enable AI Translation toggle
-    st.session_state.translate_mode = st.toggle(
-        t("🌐 Enable AI Translation"), 
-        value=st.session_state.translate_mode
-    )
-    
-    # Language selector
-    st.markdown(t("### Language"))
-    lang_options = {
-        "en": "English", "ar": "العربية", "fr": "Français", "es": "Español",
-        "pt": "Português", "ru": "Русский", "de": "Deutsch", "sw": "Kiswahili", "zh": "中文"
-    }
-    selected_lang = st.selectbox(
-        t("Select Language"),
-        options=list(lang_options.keys()),
-        format_func=lambda x: lang_options[x],
-        index=list(lang_options.keys()).index(st.session_state.lang),
-        key="lang_selector_home"
-    )
-    
-    if selected_lang != st.session_state.lang:
-        st.session_state.lang = selected_lang
-        st.rerun()
-    
-    current_lang = st.session_state.lang
-    
-    # RTL support for Arabic
-    if current_lang == "ar":
-        st.markdown("""
-        <style>
-        .stApp { direction: rtl; text-align: right; }
-        </style>
-        """, unsafe_allow_html=True)
+    st.markdown("---")
+
+    # Centralized translation UI (languages + toggle + RTL handled internally)
+    render_translation_sidebar()
 
 # Branding: DGP Finance at top right
 st.markdown(f"""
